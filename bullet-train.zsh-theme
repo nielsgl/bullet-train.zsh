@@ -27,6 +27,7 @@ if [ ! -n "${BULLETTRAIN_PROMPT_ORDER+1}" ]; then
     ruby
     virtualenv
     nvm
+    nodenv
     go
     git
     hg
@@ -101,6 +102,23 @@ if [ ! -n "${BULLETTRAIN_NVM_FG+1}" ]; then
 fi
 if [ ! -n "${BULLETTRAIN_NVM_PREFIX+1}" ]; then
   BULLETTRAIN_NVM_PREFIX="⬡ "
+fi
+
+# NODENV
+if [ ! -n "${BULLETTRAIN_NODENV_BG+1}" ]; then
+  BULLETTRAIN_NODENV_BG=green
+fi
+if [ ! -n "${BULLETTRAIN_NODENV_FG+1}" ]; then
+  BULLETTRAIN_NODENV_FG=white
+fi
+if [ ! -n "${BULLETTRAIN_NODENV_PREFIX+1}" ]; then
+  BULLETTRAIN_NODENV_PREFIX="⬡ "
+fi
+if [ ! -n "${BULLETTRAIN_NODENV_HIDE_GLOBAL+1}" ]; then
+  BULLETTRAIN_NODENV_HIDE_GLOBAL=true
+fi
+if [ ! -n "${BULLETTRAIN_NODENV_LOCAL+1}" ]; then
+  BULLETTRAIN_NODENV_LOCAL=""
 fi
 
 # RUBY
@@ -477,7 +495,8 @@ prompt_virtualenv() {
   if [[ -n $virtualenv_path && -n $VIRTUAL_ENV_DISABLE_PROMPT ]]; then
     prompt_segment $BULLETTRAIN_VIRTUALENV_BG $BULLETTRAIN_VIRTUALENV_FG $BULLETTRAIN_VIRTUALENV_PREFIX" $(basename $virtualenv_path)"
   elif which pyenv &> /dev/null; then
-    prompt_segment $BULLETTRAIN_VIRTUALENV_BG $BULLETTRAIN_VIRTUALENV_FG $BULLETTRAIN_VIRTUALENV_PREFIX" $(pyenv version | sed -e 's/ (set.*$//' | tr '\n' ' ' | sed 's/.$//')"
+    # prompt_segment $BULLETTRAIN_VIRTUALENV_BG $BULLETTRAIN_VIRTUALENV_FG $BULLETTRAIN_VIRTUALENV_PREFIX" $(pyenv version | sed -e 's/ (set.*$//' | tr '\n' ' ' | sed 's/.$//')"
+    prompt_segment $BULLETTRAIN_VIRTUALENV_BG $BULLETTRAIN_VIRTUALENV_FG $BULLETTRAIN_VIRTUALENV_PREFIX" $(pyenv local | sed -e 's/ (set.*$//' | tr '\n' ' ' | sed 's/.$//')"
   fi
 }
 
@@ -492,6 +511,22 @@ prompt_nvm() {
   fi
   nvm_prompt=${nvm_prompt}
   prompt_segment $BULLETTRAIN_NVM_BG $BULLETTRAIN_NVM_FG $BULLETTRAIN_NVM_PREFIX$nvm_prompt
+}
+
+# NODENV: Node version manager
+prompt_nodenv() {
+  local nodenv_prompt
+  if type nodenv >/dev/null 2>&1; then
+    nodenv_prompt=$(nodenv local 2>/dev/null)
+    [[ "${nodenv_prompt}x" == "x" ]] && return
+  else
+    nodenv_prompt="$(node --version)"
+  fi
+  nodenv_prompt=${nodenv_prompt}
+  if [[ nodenv_prompt != "" ]]; then
+    prompt_segment $BULLETTRAIN_NODENV_BG $BULLETTRAIN_NODENV_FG $BULLETTRAIN_NODENV_PREFIX$nodenv_prompt
+  fi
+
 }
 
 prompt_time() {
